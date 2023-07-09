@@ -1,20 +1,88 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import ListContextProvider from './context/ListContext';
+import Header from './components/Header';
+import ItemList from './components/ItemList';
+import AddItemForm from './components/AddItemForm';
+import CopyList from './components/CopyList';
+import SelectList from './components/SelectList';
+import NewList from './components/NewList';
+import { Icon, SpeedDial } from 'react-native-elements';
 
-export default function App() {
+const App = () => {
+  const [open, setOpen] = useState(false);
+  const [isCopyModalVisible, setIsCopyModalVisible] = useState(false);
+  const [isSelectModalVisible, setIsSelectModalVisible] = useState(false);
+  const [isNewModalVisible, setIsNewModalVisible] = useState(false);
+
+  const openCopyListModal = () => {
+    setIsCopyModalVisible(true);
+  };
+
+  const closeCopyListModal = () => {
+    setIsCopyModalVisible(false);
+  };
+
+  const openSelectListModal = () => {
+    setIsSelectModalVisible(true);
+  };
+
+  const closeSelectListModal = () => {
+    setIsSelectModalVisible(false);
+  };
+
+  const openNewListModal = () => {
+    setIsNewModalVisible(true);
+  };
+
+  const closeNewListModal = () => {
+    setIsNewModalVisible(false);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ListContextProvider>
+      <View style={styles.container}>
+        <Header />
+        <ItemList />
+        <AddItemForm />
+
+        <SpeedDial
+          isOpen={open}
+          icon={{ name: 'settings', color: '#fff' }}
+          openIcon={{ name: 'close', color: '#fff' }}
+          onOpen={() => setOpen(!open)}
+          onClose={() => setOpen(!open)}
+        >
+          <SpeedDial.Action
+            icon={{ name: 'save', color: '#fff' }}
+            title="New List"
+            onPress={openNewListModal}
+          />
+          <SpeedDial.Action
+            icon={{ name: 'save', color: '#fff' }}
+            title="Copy List"
+            onPress={openCopyListModal}
+          />
+          <SpeedDial.Action
+            icon={{ name: 'list', color: '#fff' }}
+            title="Select List"
+            onPress={openSelectListModal} // Open the SelectList modal
+          />
+        </SpeedDial>
+
+        {isCopyModalVisible && <CopyList onClose={closeCopyListModal} />}
+        {isSelectModalVisible && <SelectList onClose={closeSelectListModal} />}
+        {isNewModalVisible && <NewList onClose={closeNewListModal} />}
+      </View>
+    </ListContextProvider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#F5E6CB',
   },
 });
+
+export default App;

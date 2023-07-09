@@ -12,7 +12,13 @@
     "expo": "~48.0.18",
     "expo-status-bar": "~1.4.4",
     "react": "18.2.0",
-    "react-native": "0.71.8"
+    "react-native": "0.71.8",
+    "react-native-dropdown-picker": "^5.4.6",
+    "react-native-element-dropdown": "^2.9.0",
+    "react-native-elements": "^3.4.3",
+    "react-native-gesture-handler": "~2.9.0",
+    "react-native-linear-gradient": "^2.7.3",
+    "react-native-vector-icons": "^9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
