@@ -7,13 +7,14 @@ import AddItemForm from './components/AddItemForm';
 import CopyList from './components/CopyList';
 import SelectList from './components/SelectList';
 import NewList from './components/NewList';
-import { Icon, SpeedDial } from 'react-native-elements';
+import { Icon, SpeedDial, Modal } from 'react-native-elements';
 
 const App = () => {
   const [open, setOpen] = useState(false);
   const [isCopyModalVisible, setIsCopyModalVisible] = useState(false);
   const [isSelectModalVisible, setIsSelectModalVisible] = useState(false);
   const [isNewModalVisible, setIsNewModalVisible] = useState(false);
+  const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
 
   const openCopyListModal = () => {
     setIsCopyModalVisible(true);
@@ -39,12 +40,19 @@ const App = () => {
     setIsNewModalVisible(false);
   };
 
+  const openAddItemModal = () => {
+    setIsAddItemModalVisible(true);
+  };
+
+  const closeAddItemModal = () => {
+    setIsAddItemModalVisible(false);
+  };
+
   return (
     <ListContextProvider>
       <View style={styles.container}>
         <Header />
         <ItemList />
-        <AddItemForm />
 
         <SpeedDial
           isOpen={open}
@@ -66,13 +74,19 @@ const App = () => {
           <SpeedDial.Action
             icon={{ name: 'list', color: '#fff' }}
             title="Select List"
-            onPress={openSelectListModal} // Open the SelectList modal
+            onPress={openSelectListModal}
+          />
+          <SpeedDial.Action
+            icon={{ name: 'add', color: '#fff' }}
+            title="Add Item"
+            onPress={openAddItemModal}
           />
         </SpeedDial>
 
         {isCopyModalVisible && <CopyList onClose={closeCopyListModal} />}
         {isSelectModalVisible && <SelectList onClose={closeSelectListModal} />}
         {isNewModalVisible && <NewList onClose={closeNewListModal} />}
+        {isAddItemModalVisible && <AddItemForm onClose={closeAddItemModal} />}
       </View>
     </ListContextProvider>
   );

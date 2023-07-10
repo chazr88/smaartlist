@@ -8,7 +8,7 @@ const initialListData = [
     items: [
       { name: 'Apples', amount: '1', measurement: 'pound(s)' },
       { name: 'Bananas', amount: '1', measurement: 'pound(s)' },
-      { name: 'Bread', amount: '2', measurement: 'loaf(s)' },
+      { name: 'Bread', amount: '2', measurement: 'Bag(s)' },
     ],
   },
 ];

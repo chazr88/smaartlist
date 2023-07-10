@@ -7,10 +7,10 @@ const CopyList = ({ onClose }) => {
   const { lists, addList, setActiveList } = useContext(ListContext);
   const activeListIndex = lists.length - 1;
   const activeList = lists[activeListIndex];
-  const [newListName, setNewListName] = useState(activeList.name);
+  const [newListName, setNewListName] = useState(`${activeList.name} (2)`);
 
   const handleCopyList = () => {
-    addList(newListName, activeList.items); // Pass newListName and activeList.items as separate arguments
+    addList(newListName, activeList.items);
     console.log('Copyd List:', newListName);
     onClose();
   };
@@ -32,7 +32,7 @@ const CopyList = ({ onClose }) => {
               value={newListName}
               onChangeText={setNewListName}
             />
-            <Button title="Save" onPress={handleSaveList} />
+            <Button title="Save" onPress={handleCopyList} />
           </View>
         </View>
       </View>
