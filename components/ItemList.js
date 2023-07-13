@@ -29,12 +29,14 @@ const ItemList = () => {
   const renderItem = (data, rowMap) => {
     const { item, index } = data;
     return (
+      
       <View style={styles.itemContainer}>
         <CheckBox
           checked={selectedItems.includes(index)}
           onPressIn={() => handleItemToggle(index)}
           containerStyle={styles.checkboxContainer}
         />
+        {/* <ListItem>Test</ListItem> */}
         <View style={styles.amountMeasurementContainer}>
           {item.amount && (
             <>
