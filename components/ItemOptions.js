@@ -6,10 +6,10 @@ import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const ItemOptions = ({ item, itemIndex, onClose }) => {
-  const { updateItemOptions } = useContext(ListContext);
+  const { activeList, updateItemOptions } = useContext(ListContext);
   const [amount, setAmount] = useState(item.amount);
   const [measurement, setMeasurement] = useState(item.measurement);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState(item.measurement); 
 
   const handleAmountChange = (text) => {
     setAmount(text);
@@ -20,7 +20,15 @@ const ItemOptions = ({ item, itemIndex, onClose }) => {
   };
 
   const handleUpdateItemOptions = () => {
-    updateItemOptions(itemIndex, amount, measurement);
+    const updatedItem = {
+      ...item,
+      amount: amount,
+      measurement: measurement,
+    };
+
+    // Update the item options through the context function
+    updateItemOptions(activeList.id, item.id, updatedItem);
+
     onClose();
   };
 

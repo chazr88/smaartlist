@@ -4,12 +4,12 @@ import { Button, Icon } from 'react-native-elements';
 import { ListContext } from '../context/ListContext';
 
 const SelectList = ({ onClose }) => {
-  const { lists, setActiveList } = useContext(ListContext);
-  console.log(lists)
+  const { lists, changeActiveList } = useContext(ListContext);
 
-  const handleSelectList = (index) => {
-    setActiveList(index);
-    console.log('Selected List:', lists[index]); 
+  const handleSelectList = async (index) => {
+    const selectedList = lists[index];
+    await changeActiveList(selectedList.id);
+    console.log('Selected List:', selectedList);
     onClose();
   };
 

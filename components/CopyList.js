@@ -4,13 +4,13 @@ import { Button, Icon } from 'react-native-elements';
 import { ListContext } from '../context/ListContext';
 
 const CopyList = ({ onClose }) => {
-  const { lists, addList, setActiveList } = useContext(ListContext);
+  const { lists, saveList, setActiveList } = useContext(ListContext);
   const activeListIndex = lists.length - 1;
   const activeList = lists[activeListIndex];
   const [newListName, setNewListName] = useState(`${activeList.name} (2)`);
 
   const handleCopyList = () => {
-    addList(newListName, activeList.items);
+    saveList(newListName, activeList.items);
     console.log('Copyd List:', newListName);
     onClose();
   };

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Button, Card, CheckBox } from "react-native-elements";
 import { ListContext } from "../context/ListContext";
@@ -6,11 +6,15 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import ItemOptions from "./ItemOptions";
 
 const ItemList = () => {
-  const { lists, activeListIndex, removeItem } = useContext(ListContext);
+  const { lists, activeList, removeItem } = useContext(ListContext);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectedItemIndex, setSelectedItemIndex] = useState(null);
 
-  const activeList = lists[activeListIndex];
+  useEffect(() => {
+    setSelectedItems([]); // Reset selected items when active list changes
+    setSelectedItemIndex(null); // Reset selected item index when active list changes
+  }, [activeList]);
+
 
   const handleOptionsPress = (index) => {
     setSelectedItemIndex(index);
@@ -29,14 +33,12 @@ const ItemList = () => {
   const renderItem = (data, rowMap) => {
     const { item, index } = data;
     return (
-      
       <View style={styles.itemContainer}>
         <CheckBox
           checked={selectedItems.includes(index)}
           onPressIn={() => handleItemToggle(index)}
           containerStyle={styles.checkboxContainer}
         />
-        {/* <ListItem>Test</ListItem> */}
         <View style={styles.amountMeasurementContainer}>
           {item.amount && (
             <>
@@ -68,7 +70,7 @@ const ItemList = () => {
 
   const renderHiddenItem = (data, rowMap) => {
     const { index } = data;
-  
+
     return (
       <View style={styles.rowBack}>
         <View style={styles.backLeftBtn}>
@@ -100,6 +102,7 @@ const ItemList = () => {
     </Card>
   );
 };
+
 const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,

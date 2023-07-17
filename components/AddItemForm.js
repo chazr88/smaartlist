@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { View, TextInput, Button, StyleSheet, Modal } from "react-native";
+import { v4 as uuidv4 } from "uuid"; // Import the v4 function from the uuid library
 import { ListContext } from "../context/ListContext";
 import { Dropdown } from 'react-native-element-dropdown';
 
@@ -11,7 +12,13 @@ const AddItemForm = ({ visible, onClose }) => {
 
   const handleAddItem = () => {
     if (item.trim() !== "") {
-      addItem({ name: item.trim(), amount, measurement });
+      const newItem = {
+        id: uuidv4(), // Generate a unique ID for the item
+        name: item.trim(),
+        amount,
+        measurement,
+      };
+      addItem(newItem);
       setItem("");
       setAmount(null);
       setMeasurement(null);

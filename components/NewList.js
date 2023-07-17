@@ -4,11 +4,11 @@ import { Button, Icon } from 'react-native-elements';
 import { ListContext } from '../context/ListContext';
 
 const NewList = ({ onClose }) => {
-  const { lists, addList, setActiveList } = useContext(ListContext);
+  const { lists, saveList, setActiveList } = useContext(ListContext);
   const [newListName, setNewListName] = useState();
 
   const handleSaveList = () => {
-    addList(newListName, []); // Pass newListName and activeList.items as separate arguments
+    saveList(newListName, []); // Pass newListName and activeList.items as separate arguments
     onClose();
   };
 
