@@ -22,34 +22,69 @@ const listController = {
     }
   },
 
-  getListByIndex: (req, res) => {
-    // Implementation to get a specific list by index
+  getListById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const client = await pool.connect();
+
+      const query = `
+        SELECT * FROM my_schema.lists WHERE id = $1
+      `;
+      const values = [id];
+      const result = await client.query(query, values);
+      const list = result.rows[0];
+
+      client.release();
+
+      if (!list) {
+        return res.status(404).json({ message: "No list found with the given id" });
+      }
+
+      res.status(200).json(list);
+    } catch (error) {
+      console.error("Error getting list by id:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   },
 
   createList: async (req, res) => {
     try {
-      const { id, name, items } = req.body;
-
-      // Convert items array to JSON string
-      const itemsJson = JSON.stringify(items);
-
+      const { name } = req.body;
+  
       const client = await pool.connect();
-
-      // Insert the new list into the database
-      const query = `
-          INSERT INTO my_schema.lists (id, name, items)
-          VALUES ($1, $2, $3)
-          RETURNING *
-        `;
-      const values = [String(id), name, itemsJson]; // Include the id in the values array
-      const result = await client.query(query, values);
-
+  
+      // Start a transaction
+      await client.query('BEGIN');
+  
+      // Update the old active list
+      const deactivateQuery = `
+        UPDATE my_schema.lists 
+        SET active = false 
+        WHERE active = true
+      `;
+      await client.query(deactivateQuery);
+  
+      // Insert the new active list
+      const insertQuery = `
+        INSERT INTO my_schema.lists (name, active)
+        VALUES ($1, $2)
+        RETURNING *
+      `;
+      const values = [name, true];
+      const result = await client.query(insertQuery, values);
+  
+      // Commit the transaction
+      await client.query('COMMIT');
+  
       client.release();
-
+  
       const newList = result.rows[0];
-
+  
       res.status(201).json(newList);
     } catch (error) {
+      // Roll back the transaction in case of any errors
+      await client.query('ROLLBACK');
+      client.release();
       console.error("Error creating list:", error);
       res.status(500).json({ message: "Error creating list" });
     }
@@ -80,13 +115,11 @@ const listController = {
 
   updateList: async (req, res) => {
     try {
-      const { index } = req.params;
-      const id = index;
-      const { items, active } = req.body;
-      console.log(items)
-  
+      const { id } = req.params;
+      const { name, active } = req.body;
+    
       const client = await pool.connect();
-  
+    
       // Find the list by id
       const selectQuery = `
         SELECT * FROM my_schema.lists
@@ -95,37 +128,36 @@ const listController = {
       const selectValues = [id];
       const selectResult = await client.query(selectQuery, selectValues);
       const list = selectResult.rows[0];
-  
+    
       if (!list) {
         client.release();
         return res.status(404).json({ message: "List not found" });
       }
+    
+      // Construct the update query based on the fields provided
+      let updateQuery = 'UPDATE my_schema.lists SET ';
+      let updateValues = [];
+      let count = 1;
   
-      // Update the properties based on the available fields
+      if (name !== undefined) {
+        updateQuery += `name = $${count}, `;
+        updateValues.push(name);
+        count++;
+      }
       if (active !== undefined) {
-        list.active = active;
+        updateQuery += `active = $${count} `;
+        updateValues.push(active);
+        count++;
       }
-      if (items !== undefined) {
-        list.items = JSON.stringify(items); 
-      }
-      
-      // Update the list
-      const updateQuery = `
-        UPDATE my_schema.lists
-        SET ${items !== undefined ? 'items = $1,' : ''}
-            active = $${items !== undefined ? '2' : '1'}
-        WHERE id = $${items !== undefined ? '3' : '2'}
-        RETURNING *
-      `;
-      
-      const updateValues = items !== undefined ? [list.items, list.active, id] : [list.active, id];
-      
+    
+      updateQuery += `WHERE id = $${count} RETURNING *`;
+      updateValues.push(id);
+    
       const updateResult = await client.query(updateQuery, updateValues);
       const updatedList = updateResult.rows[0];
-  
+    
       client.release();
-  
-      // Return the updated list as the response
+    
       res.status(200).json(updatedList);
     } catch (error) {
       console.error("Error updating list:", error);
@@ -133,67 +165,149 @@ const listController = {
     }
   },
   
+  deleteList: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const client = await pool.connect();
 
-  deleteList: (req, res) => {
-    // Implementation to delete a list
+      const query = `
+        DELETE FROM my_schema.lists WHERE id = $1
+      `;
+      const values = [id];
+      await client.query(query, values);
+
+      client.release();
+
+      res.status(200).json({ message: "List deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting list:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   },
 
-  addItemToList: (req, res) => {
-    // Implementation to add an item to a list
+  addItemToList: async (req, res) => {
+    try {
+      const { listId } = req.params;
+      const { name, amount, measurement } = req.body;
+
+      const client = await pool.connect();
+
+      const query = `
+        INSERT INTO my_schema.items (list_id, name, amount, measurement)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `;
+      const values = [listId, name, amount, measurement];
+      const result = await client.query(query, values);
+      const newItem = result.rows[0];
+
+      client.release();
+
+      res.status(201).json(newItem);
+    } catch (error) {
+      console.error("Error adding item to list:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   },
 
   updateItemInList: async (req, res) => {
     try {
       const { listId, itemId } = req.params;
-      const { item } = req.body;
-  
+      const { name, amount, measurement } = req.body;
+
       const client = await pool.connect();
-  
-      // Retrieve the entire items array
-      const selectQuery = `
-        SELECT items
-        FROM my_schema.lists
-        WHERE id = $1
-      `;
-      const selectValues = [listId];
-      const selectResult = await client.query(selectQuery, selectValues);
-      const itemsArray = selectResult.rows[0].items;
-  
-      // Find the index of the item with the matching id
-      const itemIndex = itemsArray.findIndex((it) => it.id === itemId);
-      if (itemIndex === -1) {
-        client.release();
-        return res.status(404).json({ message: "Item not found in the list" });
-      }
-  
-      // Replace the item at the found index with the updated item
-      itemsArray[itemIndex] = item;
-  
-      // Update the items array in the database
-      const updateQuery = `
-        UPDATE my_schema.lists
-        SET items = $1
-        WHERE id = $2
+
+      const query = `
+        UPDATE my_schema.items
+        SET name = $1, amount = $2, measurement = $3
+        WHERE list_id = $4 AND id = $5
         RETURNING *
       `;
-      const updateValues = [itemsArray, listId];
-      const updateResult = await client.query(updateQuery, updateValues);
-      const updatedList = updateResult.rows[0];
-  
+      const values = [name, amount, measurement, listId, itemId];
+      const result = await client.query(query, values);
+      const updatedItem = result.rows[0];
+
       client.release();
-  
-      // Return the updated list as the response
-      res.status(200).json(updatedList);
+
+      if (!updatedItem) {
+        return res.status(404).json({ message: "No item found with the given id in this list to update" });
+      }
+
+      res.status(200).json(updatedItem);
     } catch (error) {
       console.error("Error updating item in list:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   },
-  
 
+  getAllItemsFromList: async (req, res) => {
+    try {
+      const { listId } = req.params;
 
-  deleteItemFromList: (req, res) => {
-    // Implementation to delete an item from a list
+      const client = await pool.connect();
+
+      const query = `
+        SELECT * FROM my_schema.items WHERE list_id = $1
+      `;
+      const values = [listId];
+      const result = await client.query(query, values);
+      const items = result.rows;
+
+      client.release();
+
+      res.status(200).json(items);
+    } catch (error) {
+      console.error("Error getting items from list:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  getItemFromList: async (req, res) => {
+    try {
+      const { listId, itemId } = req.params;
+
+      const client = await pool.connect();
+
+      const query = `
+        SELECT * FROM my_schema.items WHERE list_id = $1 AND id = $2
+      `;
+      const values = [listId, itemId];
+      const result = await client.query(query, values);
+      const item = result.rows[0];
+
+      client.release();
+
+      if (!item) {
+        return res.status(404).json({ message: "No item found with the given id in this list" });
+      }
+
+      res.status(200).json(item);
+    } catch (error) {
+      console.error("Error getting item from list:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  deleteItemFromList: async (req, res) => {
+    try {
+      const { listId, itemId } = req.params;
+
+      const client = await pool.connect();
+
+      const query = `
+        DELETE FROM my_schema.items
+        WHERE list_id = $1 AND id = $2
+      `;
+      const values = [listId, itemId];
+      await client.query(query, values);
+
+      client.release();
+
+      res.status(200).json({ message: "Item deleted successfully from the list" });
+    } catch (error) {
+      console.error("Error deleting item from list:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   },
 };
 

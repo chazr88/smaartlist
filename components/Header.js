@@ -11,7 +11,7 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#8dc6ff",
     paddingVertical: 20,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
@@ -19,8 +19,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 25,
+    color: "#212121",
+    alignSelf: "center",
+    fontStyle: "italic",
+    textDecorationLine: "underline",
+    textDecorationStyle: "double",
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: -2, height: 2},
+    textShadowRadius: 10
   },
 });
 

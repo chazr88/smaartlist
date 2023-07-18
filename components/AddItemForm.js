@@ -13,7 +13,6 @@ const AddItemForm = ({ visible, onClose }) => {
   const handleAddItem = () => {
     if (item.trim() !== "") {
       const newItem = {
-        id: uuidv4(), // Generate a unique ID for the item
         name: item.trim(),
         amount,
         measurement,

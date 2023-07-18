@@ -1,8 +1,9 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native";
 import { Button, Card, CheckBox } from "react-native-elements";
 import { ListContext } from "../context/ListContext";
 import { SwipeListView } from "react-native-swipe-list-view";
+import {LinearGradient} from 'expo-linear-gradient'; // You'll need to install react-native-linear-gradient library.
 import ItemOptions from "./ItemOptions";
 
 const ItemList = () => {
@@ -30,47 +31,52 @@ const ItemList = () => {
     }
   };
 
+
   const renderItem = (data, rowMap) => {
     const { item, index } = data;
     return (
-      <View style={styles.itemContainer}>
-        <CheckBox
-          checked={selectedItems.includes(index)}
-          onPressIn={() => handleItemToggle(index)}
-          containerStyle={styles.checkboxContainer}
-        />
-        <View style={styles.amountMeasurementContainer}>
-          {item.amount && (
-            <>
-              <Text style={styles.amount}>{item.amount}</Text>
-              <Text style={styles.measurement}>{item.measurement}</Text>
-            </>
-          )}
-        </View>
-        <View style={styles.nameContainer}>
-          <Text
-            style={[
-              styles.name,
-              selectedItems.includes(index) && styles.strikethrough,
-            ]}
-          >
-            {item.name}
-          </Text>
-        </View>
-        {selectedItemIndex === index && (
-          <ItemOptions
-            item={item}
-            itemIndex={index}
-            onClose={() => setSelectedItemIndex(null)}
+          <LinearGradient
+          colors={['#e4f1fe', '#8dc6ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.itemContainer}
+        >
+          <CheckBox
+            checked={selectedItems.includes(index)}
+            onPressIn={() => handleItemToggle(index)}
+            containerStyle={styles.checkboxContainer}
           />
-        )}
-      </View>
+          <View style={styles.amountMeasurementContainer}>
+            {item.amount && (
+              <>
+                <Text style={styles.amount}>{item.amount}</Text>
+                <Text style={styles.measurement}>{item.measurement}</Text>
+              </>
+            )}
+          </View>
+          <View style={styles.nameContainer}>
+            <Text
+              style={[
+                styles.name,
+                selectedItems.includes(index) && styles.strikethrough,
+              ]}
+            >
+              {item.name}
+            </Text>
+          </View>
+          {selectedItemIndex === index && (
+            <ItemOptions
+              item={item}
+              itemIndex={index}
+              onClose={() => setSelectedItemIndex(null)}
+            />
+          )}
+        </LinearGradient>
     );
   };
 
   const renderHiddenItem = (data, rowMap) => {
     const { index } = data;
-
     return (
       <View style={styles.rowBack}>
         <View style={styles.backLeftBtn}>
@@ -79,7 +85,7 @@ const ItemList = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.backRightBtn}>
-          <TouchableOpacity onPress={() => removeItem(index)}>
+          <TouchableOpacity onPress={() => removeItem(data.item.id)}>
             <Text style={styles.backTextWhite}>Delete</Text>
           </TouchableOpacity>
         </View>
@@ -108,19 +114,30 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   cardContainer: {
+    backgroundColor: "#757575",
     borderRadius: 10,
     overflow: "hidden",
+    margin: 5,
+    elevation: 5, // Add shadow for Android
+    shadowOffset: { width: 1, height: 1 }, // Add shadow for iOS
+    shadowColor: "#333",
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
+
   listHeader: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#e4f1fe",
     padding: 10,
     marginBottom: 10,
     borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 2, 
   },
   listName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
+    color: "#212121",
   },
   checkboxContainer: {
     margin: 0,
@@ -133,10 +150,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     height: 50,
     borderRadius: 10,
-    borderColor: 'grey', // set the border color
-    borderWidth: .5,     // set the border width
-    marginBottom: ".5%"
+    padding: 10,
+    marginBottom: 10,
+    elevation: 3, // Add shadow for Android
+    shadowOffset: { width: 1, height: 1 }, // Add shadow for iOS
+    shadowColor: "#333",
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
+
   amountMeasurementContainer: {
     flexDirection: "row",
     marginRight: 10,
@@ -158,38 +180,29 @@ const styles = StyleSheet.create({
     color: "red",
   },
   rowBack: {
-    alignItems: 'center',
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   backLeftBtn: {
     alignItems: 'center',
-    bottom: 0,
     justifyContent: 'center',
-    position: 'absolute',
-    top: 0,
+    height: 50, // Adjust the percentage according to your needs
     width: 75,
-    backgroundColor: 'blue',
+    backgroundColor: '#0092ca',
     left: 0,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
-    borderColor: 'white', // set the border color
-    borderWidth: 2, 
   },
   backRightBtn: {
     alignItems: 'center',
-    bottom: 0,
     justifyContent: 'center',
-    position: 'absolute',
-    top: 0,
+    height: 50, // Adjust the percentage according to your needs
     width: 75,
-    backgroundColor: 'red',
+    backgroundColor: '#F47373',
     right: 0,
     borderTopRightRadius: 10,
     borderBottomRightRadius: 10,
-    borderColor: 'white', // set the border color
-    borderWidth: 2, 
   },
   backTextWhite: {
     color: '#FFF'

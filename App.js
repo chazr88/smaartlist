@@ -58,6 +58,10 @@ const App = () => {
     setIsSaveListModalVisible(false);
   };
 
+  const speedDialStyle = {
+    backgroundColor: "#fff", // Replace with your desired color
+  };
+
   return (
     <ListContextProvider>
       <View style={styles.container}>
@@ -70,31 +74,35 @@ const App = () => {
           openIcon={{ name: "close", color: "#fff" }}
           onOpen={() => setOpen(!open)}
           onClose={() => setOpen(!open)}
+          buttonStyle={{backgroundColor: "#8dc6ff"}}
         >
-          <SpeedDial.Action
+          {/* <SpeedDial.Action
             icon={{ name: "save", color: "#fff" }}
             title="Save List"
             onPress={openSaveListModal}
-          />
+          /> */}
           <SpeedDial.Action
             icon={{ name: "add", color: "#fff" }}
             title="New List"
             onPress={openNewListModal}
+            buttonStyle={{backgroundColor: "#8dc6ff"}}
           />
-          <SpeedDial.Action
+          {/* <SpeedDial.Action
             icon={{ name: "save", color: "#fff" }}
             title="Copy List"
             onPress={openCopyListModal}
-          />
+          /> */}
           <SpeedDial.Action
             icon={{ name: "list", color: "#fff" }}
             title="Select List"
             onPress={openSelectListModal}
+            buttonStyle={{backgroundColor: "#8dc6ff"}}
           />
           <SpeedDial.Action
             icon={{ name: "add", color: "#fff" }}
             title="Add Item"
             onPress={openAddItemModal}
+            buttonStyle={{backgroundColor: "#8dc6ff"}}
           />
         </SpeedDial>
 
@@ -111,7 +119,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5E6CB",
+    backgroundColor: "#BDBDBD",
   },
 });
 
