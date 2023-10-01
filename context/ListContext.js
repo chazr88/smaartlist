@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 const ListContext = createContext();
+const url = "https://smaart-list-api.onrender.com"
 
 function ListContextProvider({ children }) {
   const [lists, setLists] = useState([]);
@@ -19,7 +20,7 @@ function ListContextProvider({ children }) {
 
   const fetchLists = async () => {
     try {
-      const response = await axios.get('http://192.168.0.119:3001/lists');
+      const response = await axios.get(`${url}/lists`);
       const fetchedLists = response.data.map((list) => ({
         id: list.id,
         name: list.name,
@@ -36,10 +37,10 @@ function ListContextProvider({ children }) {
       const currentActiveListId = activeList.id;
   
       // Update the current active list to set 'active' to false
-      await axios.put(`http://192.168.0.119:3001/lists/${currentActiveListId}`, { active: false });
+      await axios.put(`${url}/lists/${currentActiveListId}`, { active: false });
   
       // Update the selected list to set 'active' to true
-      await axios.put(`http://192.168.0.119:3001/lists/${listId}`, { active: true });
+      await axios.put(`${url}/${listId}`, { active: true });
   
       // Fetch the updated active list
       fetchActiveList();
@@ -54,11 +55,11 @@ function ListContextProvider({ children }) {
 
   const fetchActiveList = async () => {
     try {
-      const response = await axios.get('http://192.168.0.119:3001/lists/active');
+      const response = await axios.get(`${url}/lists/active`);
       const activeList = response.data;
 
       // Fetch items for the active list
-      const itemsResponse = await axios.get(`http://192.168.0.119:3001/lists/${activeList.id}/items`);
+      const itemsResponse = await axios.get(`${url}/lists/${activeList.id}/items`);
       activeList.items = itemsResponse.data;
 
       setActiveList(activeList);
@@ -71,7 +72,7 @@ function ListContextProvider({ children }) {
     try {
       // Make API call to add a new item
       await axios.post(
-        `http://192.168.0.119:3001/lists/${activeList.id}/items`,
+        `${url}/lists/${activeList.id}/items`,
         item,
         {
           headers: {
@@ -88,7 +89,7 @@ function ListContextProvider({ children }) {
   const removeItem = async (itemId) => {
     try {
       // Make API call to delete an item
-      await axios.delete(`http://192.168.0.119:3001/lists/${activeList.id}/items/${itemId}`);
+      await axios.delete(`${url}/lists/${activeList.id}/items/${itemId}`);
     } catch (error) {
       console.error('Error removing item:', error);
     }
@@ -99,7 +100,7 @@ function ListContextProvider({ children }) {
     try {
       console.log(item); // Add this line
       await axios.put(
-        `http://192.168.0.119:3001/lists/${listId}/items/${itemId}`,
+        `${url}/lists/${listId}/items/${itemId}`,
         item,
         {
           headers: {
@@ -117,7 +118,7 @@ function ListContextProvider({ children }) {
     try {
       const newList = { name };
       const response = await axios.post(
-        'http://192.168.0.119:3001/lists',
+        `${url}/lists`,
         newList,
         {
           headers: {
@@ -135,7 +136,7 @@ function ListContextProvider({ children }) {
   const deleteList = async (listId) => {
     try {
       // Make API call to delete a list
-      await axios.delete(`http://192.168.0.119:3001/lists/${listId}`);
+      await axios.delete(`${url}/lists/${listId}`);
     } catch (error) {
       console.error('Error deleting list:', error);
     }

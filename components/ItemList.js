@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native
 import { Button, Card, CheckBox } from "react-native-elements";
 import { ListContext } from "../context/ListContext";
 import { SwipeListView } from "react-native-swipe-list-view";
-import {LinearGradient} from 'expo-linear-gradient'; // You'll need to install react-native-linear-gradient library.
+import {LinearGradient} from 'expo-linear-gradient';
 import ItemOptions from "./ItemOptions";
 
 const ItemList = () => {

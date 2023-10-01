@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import ListContextProvider from "./context/ListContext";
 import Header from "./components/Header";
 import ItemList from "./components/ItemList";
-import AddItemForm from "./components/AddItemForm";
+import AddItem from "./components/AddItem";
 import CopyList from "./components/CopyList";
 import SelectList from "./components/SelectList";
 import NewList from "./components/NewList";
@@ -109,7 +109,7 @@ const App = () => {
         {isCopyModalVisible && <CopyList onClose={closeCopyListModal} />}
         {isSelectModalVisible && <SelectList onClose={closeSelectListModal} />}
         {isNewModalVisible && <NewList onClose={closeNewListModal} />}
-        {isAddItemModalVisible && <AddItemForm onClose={closeAddItemModal} />}
+        {isAddItemModalVisible && <AddItem onClose={closeAddItemModal} />}
         {isSaveListModalVisible && <SaveList onClose={closeSaveListModal} />}
       </View>
     </ListContextProvider>
