@@ -57,7 +57,7 @@ function ListContextProvider({ children }) {
     try {
       const response = await axios.get(`${url}/lists/active`);
       const activeList = response.data;
-
+      console.log(activeList)
       // Fetch items for the active list
       const itemsResponse = await axios.get(`${url}/lists/${activeList.id}/items`);
       activeList.items = itemsResponse.data;

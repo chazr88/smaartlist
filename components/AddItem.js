@@ -1,4 +1,12 @@
-import { View, TextInput, Button, Switch, StyleSheet, Modal, Text } from "react-native";
+import {
+  View,
+  TextInput,
+  Button,
+  Switch,
+  StyleSheet,
+  Modal,
+  Text,
+} from "react-native";
 import React, { useState, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { ListContext } from "../context/ListContext";
@@ -6,11 +14,10 @@ import { Dropdown } from "react-native-element-dropdown";
 
 const AddItem = ({ visible, onClose }) => {
   const [item, setItem] = useState("");
+  const [selectedDays, setSelectedDays] = useState([]);
   const [amount, setAmount] = useState(null);
   const [measurement, setMeasurement] = useState(null);
-  const [isRecurring, setIsRecurring] = useState(false); // New state
-  const [frequency, setfrequency] = useState(null); // New state
-  const [frequencyPeriod, setFrequencyPeriod] = useState(""); // New state
+  const [isRecurring, setIsRecurring] = useState(false);
   const { addItem } = useContext(ListContext);
 
   const handleAddItem = () => {
@@ -20,9 +27,9 @@ const AddItem = ({ visible, onClose }) => {
         name: item.trim(),
         amount,
         measurement,
-        isRecurring, // New field
-        repeatCount, // New field
-        repeatInterval, // New field
+        isRecurring,
+        repeatCount, 
+        repeatInterval, 
       };
       addItem(newItem);
       setItem("");
@@ -34,12 +41,32 @@ const AddItem = ({ visible, onClose }) => {
     }
   };
 
+  const toggleDaySelection = (day) => {
+    if (selectedDays.includes(day)) {
+      setSelectedDays((prevDays) => prevDays.filter((d) => d !== day));
+    } else {
+      setSelectedDays((prevDays) => [...prevDays, day]);
+    }
+  };
+
+  const DayButton = ({ day, isSelected, onToggle }) => (
+    <View
+      style={[styles.dayButton, isSelected ? styles.dayButtonSelected : null]}
+      onStartShouldSetResponder={() => {
+        onToggle(day);
+        return true;
+      }}
+    >
+      <Text style={styles.dayButtonText}>{day[0]}</Text>
+    </View>
+  );
+
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           <View style={styles.header}>
-            <Button title="Close" onPress={onClose} />
+            <Button title="Close" onPress={onClose} style={styles.button} />
           </View>
           <View style={styles.content}>
             <TextInput
@@ -69,46 +96,20 @@ const AddItem = ({ visible, onClose }) => {
               value={measurement}
               onChange={(item) => setMeasurement(item.value)}
             />
-            {/* New Switch for setting an item as reoccurring */}
-            <View style={styles.switchContainer}>
-              <Switch
-                trackColor={{ false: "#767577", true: "#81b0ff" }}
-                thumbColor={isRecurring ? "#f5dd4b" : "#f4f3f4"}
-                onValueChange={() =>
-                  setIsRecurring((previousState) => !previousState)
-                }
-                value={isRecurring}
-              />
+            <Text style={styles.recurrenceLabel}>
+              Set As Recurring?
+            </Text>
+            <View style={styles.daysContainer}>
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <DayButton
+                  key={day}
+                  day={day}
+                  isSelected={selectedDays.includes(day)}
+                  onToggle={toggleDaySelection}
+                />
+              ))}
             </View>
-            {/* New Inputs for recurring items */}
-            {isRecurring && (
-              <>
-                <Text style={styles.label}>Frequency</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="1x"
-                  value={frequency}
-                  onChangeText={setfrequency}
-                  keyboardType="numeric"
-                />
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  iconStyle={styles.iconStyle}
-                  data={[
-                    { label: "Weekly", value: "week" },
-                    { label: "Monthly", value: "month" },
-                  ]}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Weekly"
-                  value={frequencyPeriod}
-                  onChange={(item) => setFrequencyPeriod(item.value)}
-                />
-              </>
-            )}
-            <Button title="Add" onPress={handleAddItem} />
+            <Button title="Add" onPress={handleAddItem} style={styles.button} />
           </View>
         </View>
       </View>
@@ -117,11 +118,43 @@ const AddItem = ({ visible, onClose }) => {
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
+
+
+  recurrenceLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  dayButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderColor: "#ccc",
+    borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
+    margin: 4,
+  },
+  dayButtonSelected: {
+    backgroundColor: "#81b0ff",
+  },
+  dayButtonText: {
+    fontSize: 16,
+  },
+  daysContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-start", // Aligns to the top of the container
+    alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    paddingTop: 50, // Add some padding to position it a bit down from the very top
   },
   container: {
     width: "80%",
@@ -141,28 +174,56 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     padding: 10,
     marginBottom: 10,
+    height: 40, // Set a specific height for better control
+    borderWidth: 1,
+    borderColor: "#e0e0e0", // Lighter border color
+    borderRadius: 8, // Rounded corners
+    padding: 10,
+    marginBottom: 12, // Slightly increased margin
+    backgroundColor: "#f9f9f9", // Lighter background color
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, // Android elevation for shadow effect
   },
   dropdown: {
     marginVertical: 10,
-    height: 50,
+    height: 40,
     borderBottomColor: "gray",
     borderBottomWidth: 0.5,
+    borderColor: "#e0e0e0",
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: "#f9f9f9",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    justifyContent: "center",
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 14,
+    textAlign: 'center',
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 14,
+    textAlign: 'center',
   },
   iconStyle: {
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 10,
+  },
+  button: {
+    borderRadius: 48, // You can adjust this value as per your preference
+    overflow: 'hidden', // Ensures the actual button content respects the borderRadius
   },
 });
 
